@@ -1,10 +1,12 @@
 # 公网部署与真实网址
 
-## 当前临时演示地址
+## 正式公网地址
 
-已验证地址：<https://867167dc7d028f.lhr.life>
+已验证地址：<https://academic-load-radar.onrender.com>
 
-验证时间：2026-10-09（中国标准时间）。`/api/health` 返回 `{"status":"ok","service":"academic-load-radar"}`。该地址是 localhost.run 临时隧道，电脑上的本地服务或隧道进程停止后地址会失效，不适合作为长期发布地址。
+部署平台：Render Free Web Service。
+
+验证时间：2026-10-09（中国标准时间）。健康检查 <https://academic-load-radar.onrender.com/api/health> 返回 `{"status":"ok","service":"academic-load-radar"}`，首页返回 HTTP 200。
 
 项目可以使用 Render 免费 Web Service 部署。仓库根目录的 `render.yaml` 是 Render Blueprint 配置，包含以下部署约束：
 

@@ -6,13 +6,13 @@
 
 正式提交时请在这里填写已经部署并人工打开验证过的真实地址：
 
-当前临时演示地址：<https://867167dc7d028f.lhr.life>
+正式公网地址：<https://academic-load-radar.onrender.com>
 
-该地址由 localhost.run 临时隧道提供，依赖当前开发机上的服务进程；正式提交建议替换为 Render 免费 Web Service 生成的公网地址。
+部署平台：Render Free Web Service。
 
 Render 免费部署不要求付款方式，但 SQLite 数据保存在临时文件系统中，服务重启或重新部署后可能丢失。课程演示可以使用，长期使用需要外部数据库或付费持久化磁盘。
 
-健康检查地址应为：`<公网地址>/api/health`，返回 `{"status":"ok"}`。部署步骤和提交所需的地址证据见 [`DEPLOYMENT.md`](DEPLOYMENT.md)。
+健康检查地址：<https://academic-load-radar.onrender.com/api/health>，已验证返回 `{"status":"ok","service":"academic-load-radar"}`。部署步骤和提交所需的地址证据见 [`DEPLOYMENT.md`](DEPLOYMENT.md)。
 
 代码仓库真实地址：<https://github.com/petey2024/academic-load-radar>（2026-10-09 已打开确认仓库为 Public）。
 
