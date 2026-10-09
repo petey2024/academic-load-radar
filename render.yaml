@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: academic-load-radar
+    runtime: python
+    plan: starter
+    region: singapore
+    buildCommand: python -m compileall app
+    startCommand: python -m app.main
+    envVars:
+      - key: HOST
+        value: 0.0.0.0
+      - key: ACADEMIC_LOAD_RADAR_DATA
+        value: /var/data
+    disk:
+      name: academic-load-radar-data
+      mountPath: /var/data
+      sizeGB: 1

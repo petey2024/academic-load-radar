@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>学业负荷雷达</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">DEADLINE RADAR · MVP 0.2</p>
+          <h1>学业负荷雷达</h1>
+          <p>把截止日期、可用时间与历史效率放在同一张图景里。</p>
+          <div class="algorithm-tags"><span>EDF 动态排程</span><span>个人效率校准</span><span>预测可信度</span></div>
+        </div>
+        <div class="hero-mark" aria-hidden="true"><span></span></div>
+      </header>
+
+      <section class="metrics" id="metrics" aria-label="负荷概览"></section>
+
+      <section class="panel action-panel">
+        <div class="panel-heading">
+          <div><p class="eyebrow">NEXT ACTIONS</p><h2>现在先做什么</h2></div>
+          <span class="muted">按最早截止期排序；同日任务优先处理高优先级</span>
+        </div>
+        <div id="action-list" class="action-list"></div>
+      </section>
+
+      <section class="grid">
+        <article class="panel panel-form">
+          <div class="panel-heading">
+            <div><p class="eyebrow">TASK INTAKE</p><h2>添加任务</h2></div>
+            <span class="muted">先记录，再判断</span>
+          </div>
+          <form id="task-form">
+            <label>任务名称<input name="title" required placeholder="例如：完成数据库实验报告" /></label>
+            <label>课程或项目<input name="course" placeholder="例如：软件工程" /></label>
+            <div class="form-row">
+              <label>截止日期<input type="date" name="due_date" required /></label>
+              <label>预计工时<input type="number" name="estimated_hours" min="0.5" step="0.5" required placeholder="小时" /></label>
+            </div>
+            <label>优先级<select name="priority"><option value="3">高</option><option value="2" selected>中</option><option value="1">低</option></select></label>
+            <button type="submit">加入风险雷达</button>
+            <p class="form-message" id="form-message"></p>
+          </form>
+        </article>
+
+        <article class="panel risk-board">
+          <div class="panel-heading">
+            <div><p class="eyebrow">RISK BOARD</p><h2>任务风险</h2></div>
+            <div class="heading-actions"><button class="ghost" id="batch-process" type="button">重新计算</button><button class="ghost" id="refresh" type="button">刷新</button></div>
+          </div>
+          <div class="task-toolbar">
+            <div class="filters" role="group" aria-label="筛选任务">
+              <button class="filter active" data-filter="all" type="button">全部</button>
+              <button class="filter" data-filter="active" type="button">进行中</button>
+              <button class="filter" data-filter="high" type="button">高风险</button>
+              <button class="filter" data-filter="done" type="button">已完成</button>
+            </div>
+            <input id="task-search" class="task-search" type="search" placeholder="搜索任务或课程" />
+          </div>
+          <div id="task-list" class="task-list"></div>
+          <div id="batch-summary" class="batch-summary"></div>
+        </article>
+      </section>
+
+      <section class="panel settings-panel">
+        <div class="panel-heading">
+          <div><p class="eyebrow">CAPACITY</p><h2>我的可用时间</h2></div>
+          <span class="muted">缓冲后的时间会同时用于风险判断和排程模拟</span>
+        </div>
+        <form id="settings-form" class="settings-form">
+          <label>工作日每天可用<input type="number" name="weekday_hours" min="0" max="24" step="0.5" /></label>
+          <label>周末每天可用<input type="number" name="weekend_hours" min="0" max="24" step="0.5" /></label>
+          <label>缓冲比例<input type="number" name="buffer_ratio" min="0" max="0.8" step="0.05" /></label>
+          <label>跟踪窗口（天）<input type="number" name="tracking_window_days" min="7" max="365" step="1" /></label>
+          <label class="check-label"><input type="checkbox" name="tracking_mode" /> 启用跟踪模式</label>
+          <button type="submit">保存设置</button>
+        </form>
+      </section>
+
+      <details class="panel expandable-panel ongoing-panel" open>
+        <summary>
+          <div><p class="eyebrow">ONGOING TASK</p><h2>补录进行中任务</h2></div>
+          <span class="summary-hint">展开 / 收起</span>
+        </summary>
+        <div class="expandable-body">
+          <p class="section-intro">适用于已经投入时间的任务。进度与已用工时会参与剩余时间预测。</p>
+          <form id="ongoing-form" class="history-form">
+            <label>任务名称<input name="title" required placeholder="例如：完成项目后端接口" /></label>
+            <label>课程或项目<input name="course" placeholder="例如：软件工程" /></label>
+            <label>截止日期<input type="date" name="due_date" required /></label>
+            <label>开始时间<input type="datetime-local" name="started_at" /></label>
+            <label>预计总工时<input type="number" name="estimated_hours" min="0.5" step="0.5" required /></label>
+            <label>已投入工时<input type="number" name="spent_hours" min="0" step="0.1" value="0" required /></label>
+            <label>当前进度（%）<input type="number" name="progress_percent" min="0" max="99" step="1" value="0" required /></label>
+            <label>优先级<select name="priority"><option value="3">高</option><option value="2" selected>中</option><option value="1">低</option></select></label>
+            <label>数据精度<select name="data_precision"><option value="exact">精确记录</option><option value="approx">大致回忆</option><option value="rough">粗略估计</option></select></label>
+            <label>压力感受<select name="stress_level"><option value="">未记录</option><option value="1">1 很轻松</option><option value="2">2</option><option value="3">3 一般</option><option value="4">4</option><option value="5">5 很紧张</option></select></label>
+            <button type="submit">保存进行中任务</button>
+            <p class="form-message" id="ongoing-message"></p>
+          </form>
+          <div class="import-box">
+            <div><strong>导入进行中任务 CSV</strong><p class="muted">这是导入数据；上方“重新计算”才是批量处理当前已填写任务。</p></div>
+            <input id="ongoing-file" type="file" accept=".csv,text/csv" />
+            <button class="ghost" id="import-ongoing" type="button">导入文件</button>
+          </div>
+        </div>
+      </details>
+
+      <details class="panel expandable-panel history-panel">
+        <summary>
+          <div><p class="eyebrow">BACKFILL HISTORY</p><h2>补录历史任务</h2></div>
+          <span class="summary-hint">用于校准个人估时</span>
+        </summary>
+        <div class="expandable-body">
+          <form id="history-form" class="history-form">
+            <label>任务名称<input name="title" required placeholder="例如：上周数据库实验报告" /></label>
+            <label>课程或项目<input name="course" placeholder="例如：数据库" /></label>
+            <label>原定截止日期<input type="date" name="due_date" required /></label>
+            <label>开始时间<input type="datetime-local" name="started_at" /></label>
+            <label>完成时间<input type="datetime-local" name="completed_at" required /></label>
+            <label>预计工时<input type="number" name="estimated_hours" min="0.5" step="0.5" required /></label>
+            <label>实际工时<input type="number" name="actual_hours" min="0.1" step="0.1" required /></label>
+            <label>数据精度<select name="data_precision"><option value="exact">精确记录</option><option value="approx">大致回忆</option><option value="rough">粗略估计</option></select></label>
+            <label>压力感受<select name="stress_level"><option value="">未记录</option><option value="1">1 很轻松</option><option value="2">2</option><option value="3">3 一般</option><option value="4">4</option><option value="5">5 很紧张</option></select></label>
+            <button type="submit">保存历史任务</button>
+            <p class="form-message" id="history-message"></p>
+          </form>
+          <div class="import-box">
+            <div><strong>导入历史任务 CSV</strong><p class="muted">粗略估计的数据会保留，但不进入历史效率中位数。</p></div>
+            <input id="history-file" type="file" accept=".csv,text/csv" />
+            <button class="ghost" id="import-history" type="button">导入文件</button>
+          </div>
+        </div>
+      </details>
+
+      <section class="panel insights-panel">
+        <div class="panel-heading">
+          <div><p class="eyebrow">PERSONAL CALIBRATION</p><h2>我的近期表现</h2></div>
+          <button class="ghost" id="refresh-insights">刷新分析</button>
+        </div>
+        <div id="insight-metrics" class="insight-metrics"></div>
+        <div id="insight-note" class="insight-note"></div>
+      </section>
+
+      <footer>当前版本使用可解释规则：进度与历史效率预测剩余时间，EDF 模拟排程，缓冲吸收不确定性。</footer>
+    </main>
+    <script src="/app.js"></script>
+  </body>
+</html>
