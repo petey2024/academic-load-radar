@@ -6,11 +6,15 @@
 
 正式提交时请在这里填写已经部署并人工打开验证过的真实地址：
 
-`待部署后填写，例如 https://academic-load-radar.onrender.com`
+当前临时演示地址：<https://867167dc7d028f.lhr.life>
+
+该地址由 localhost.run 临时隧道提供，依赖当前开发机上的服务进程；正式提交建议替换为 Render 免费 Web Service 生成的公网地址。
+
+Render 免费部署不要求付款方式，但 SQLite 数据保存在临时文件系统中，服务重启或重新部署后可能丢失。课程演示可以使用，长期使用需要外部数据库或付费持久化磁盘。
 
 健康检查地址应为：`<公网地址>/api/health`，返回 `{"status":"ok"}`。部署步骤和提交所需的地址证据见 [`DEPLOYMENT.md`](DEPLOYMENT.md)。
 
-GitHub 仓库：<https://github.com/petey2024/academic-load-radar>
+代码仓库真实地址：<https://github.com/petey2024/academic-load-radar>（2026-10-09 已打开确认仓库为 Public）。
 
 当前是零依赖 MVP：使用 Python 标准库提供 HTTP API、SQLite 数据库和静态 Web 界面。第一版重点验证“任务工时 + 可用时间 + 截止日期”是否能生成可解释的风险提示。
 
@@ -41,7 +45,7 @@ python -m app.main
 - 进行中任务支持已投入工时和当前进度，风险分析会按剩余工时估算负荷。
 - 查看近 30 天按时完成率、估时偏差和临近截止日期效率变化。
 - 根据至少 5 个已完成任务给出缓冲比例调整建议。
-- SQLite 持久化，重启后数据仍保留（默认位于系统临时目录；部署时可用 `ACADEMIC_LOAD_RADAR_DATA` 指定持久化目录）。
+- 本地使用 SQLite 保存数据，普通进程重启后通常仍可保留（默认位于系统临时目录；部署时可用 `ACADEMIC_LOAD_RADAR_DATA` 指定目录）。Render Free 的临时文件系统不保证跨实例重启保留数据。
 
 ## 跟踪模式
 
