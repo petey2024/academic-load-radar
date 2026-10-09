@@ -10,6 +10,8 @@
 
 健康检查地址应为：`<公网地址>/api/health`，返回 `{"status":"ok"}`。部署步骤和提交所需的地址证据见 [`DEPLOYMENT.md`](DEPLOYMENT.md)。
 
+GitHub 仓库：<https://github.com/petey2024/academic-load-radar>
+
 当前是零依赖 MVP：使用 Python 标准库提供 HTTP API、SQLite 数据库和静态 Web 界面。第一版重点验证“任务工时 + 可用时间 + 截止日期”是否能生成可解释的风险提示。
 
 ## 运行
