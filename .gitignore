@@ -9,4 +9,5 @@ env/
 .pytest_cache/
 .mypy_cache/
 docs/_rendered/
+.deploy/
 *.log
