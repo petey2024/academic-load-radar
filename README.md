@@ -6,7 +6,9 @@
 
 正式提交时请在这里填写已经部署并人工打开验证过的真实地址：
 
-`待部署后填写，例如 https://academic-load-radar.onrender.com`
+当前临时演示地址：<https://3b162423103984.lhr.life>
+
+该地址由 localhost.run 临时隧道提供，依赖当前开发机上的服务进程；正式提交建议替换为 Render 等托管平台生成的长期地址。
 
 健康检查地址应为：`<公网地址>/api/health`，返回 `{"status":"ok"}`。部署步骤和提交所需的地址证据见 [`DEPLOYMENT.md`](DEPLOYMENT.md)。
 

@@ -1,5 +1,11 @@
 # 公网部署与真实网址
 
+## 当前临时演示地址
+
+已验证地址：<https://3b162423103984.lhr.life>
+
+验证时间：2026-10-09（中国标准时间）。`/api/health` 返回 `{"status":"ok","service":"academic-load-radar"}`。该地址是 localhost.run 临时隧道，电脑上的本地服务或隧道进程停止后地址会失效，不适合作为长期发布地址。
+
 项目可以部署到支持 Python Web 服务的托管平台。仓库根目录的 `render.yaml` 是 Render Blueprint 配置，包含以下部署约束：
 
 - 启动命令为 `python -m app.main`；
