@@ -11,3 +11,5 @@ env/
 docs/_rendered/
 .deploy/
 *.log
+/outputs/
+~$*.docx

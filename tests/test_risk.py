@@ -121,6 +121,49 @@ class RiskTests(unittest.TestCase):
         self.assertEqual(len(result["next_actions"]), 2)
         self.assertIn("scheduling", result["algorithm"])
 
+    def test_tradeoff_keeps_important_task_and_suggests_partial_scope(self):
+        result = process_task_batch(
+            [
+                {"id": 1, "title": "关键报告", "due_date": "2026-09-18", "estimated_hours": 1.5, "priority": 3, "status": "todo"},
+                {"id": 2, "title": "可缩减练习", "due_date": "2026-09-18", "estimated_hours": 2, "priority": 1, "status": "todo"},
+            ],
+            SETTINGS,
+            today=date(2026, 9, 18),
+        )
+        plan = result["tradeoff_plan"]
+        self.assertEqual(plan["status"], "overloaded")
+        self.assertEqual(plan["critical_shortage_hours"], 1.9)
+        self.assertEqual([item["task_id"] for item in plan["suggestions"]], [2])
+        self.assertEqual(plan["suggestions"][0]["suggested_reduction_hours"], 1.9)
+
+    def test_later_deadline_cannot_resolve_earlier_shortage(self):
+        result = process_task_batch(
+            [
+                {"id": 1, "title": "紧急高优先级", "due_date": "2026-09-18", "estimated_hours": 3, "priority": 3, "status": "todo"},
+                {"id": 2, "title": "下周低优先级", "due_date": "2026-09-25", "estimated_hours": 10, "priority": 1, "status": "todo"},
+            ], SETTINGS, today=date(2026, 9, 18),
+        )
+        plan = result["tradeoff_plan"]
+        self.assertEqual(plan["critical_due_date"], "2026-09-18")
+        self.assertIn(1, [item["task_id"] for item in plan["suggestions"]])
+
+    def test_tradeoff_not_shown_when_deadlines_fit(self):
+        result = process_task_batch(
+            [{"id": 1, "title": "小任务", "due_date": "2026-09-18", "estimated_hours": 1, "priority": 2, "status": "todo"}],
+            SETTINGS, today=date(2026, 9, 18),
+        )
+        self.assertEqual(result["tradeoff_plan"]["status"], "comfortable")
+        self.assertEqual(result["tradeoff_plan"]["suggestions"], [])
+
+    def test_priority_hour_relief_also_handles_large_portfolio(self):
+        tasks = [
+            {"id": index, "title": f"task {index}", "due_date": "2026-09-18", "estimated_hours": 0.2, "priority": 1, "status": "todo"}
+            for index in range(1, 18)
+        ]
+        plan = process_task_batch(tasks, SETTINGS, today=date(2026, 9, 18))["tradeoff_plan"]
+        self.assertEqual(plan["method"], "priority_hours_deadline_relief")
+        self.assertGreater(plan["total_reduction_hours"], 0)
+
 
 if __name__ == "__main__":
     unittest.main()

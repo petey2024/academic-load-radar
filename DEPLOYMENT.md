@@ -1,5 +1,7 @@
 # 公网部署与真实网址
 
+上线后应核对部署版本，并使用虚构数据检查新增任务、风险计算和完成任务流程。本地验收样例的启动方式见 [`README.md`](README.md)。
+
 ## 正式公网地址
 
 已验证地址：<https://academic-load-radar.onrender.com>

@@ -13,40 +13,24 @@
           <p class="eyebrow">DEADLINE RADAR · MVP 0.2</p>
           <h1>学业负荷雷达</h1>
           <p>把截止日期、可用时间与历史效率放在同一张图景里。</p>
-          <div class="algorithm-tags"><span>EDF 动态排程</span><span>个人效率校准</span><span>预测可信度</span></div>
+          <div class="algorithm-tags"><span>截止日期排程</span><span>相似历史校准</span><span>三种方案比较</span></div>
         </div>
-        <div class="hero-mark" aria-hidden="true"><span></span></div>
+        <nav class="quick-actions" aria-label="常用操作">
+          <button type="button" data-open-panel="task-intake">＋ 添加任务</button>
+          <button type="button" data-open-panel="report-panel">生成／导出简报</button>
+          <button type="button" data-open-panel="capacity-panel">时间设置</button>
+        </nav>
       </header>
 
       <section class="metrics" id="metrics" aria-label="负荷概览"></section>
 
-      <section class="panel action-panel">
-        <div class="panel-heading">
-          <div><p class="eyebrow">NEXT ACTIONS</p><h2>现在先做什么</h2></div>
-          <span class="muted">按最早截止期排序；同日任务优先处理高优先级</span>
-        </div>
-        <div id="action-list" class="action-list"></div>
+      <section class="panel attention-panel" aria-labelledby="attention-heading">
+        <div class="panel-heading"><div><p class="eyebrow">NEEDS ATTENTION</p><h2 id="attention-heading">先关注这些任务</h2></div><span id="attention-summary" class="muted" role="status"></span></div>
+        <div id="attention-list" class="attention-grid"></div>
+        <p class="attention-note">临期指今天至后天截止，也包含已逾期任务；高风险沿用排程分析结果。两类可能重叠，已结束任务不参与。</p>
       </section>
 
       <section class="grid">
-        <article class="panel panel-form">
-          <div class="panel-heading">
-            <div><p class="eyebrow">TASK INTAKE</p><h2>添加任务</h2></div>
-            <span class="muted">先记录，再判断</span>
-          </div>
-          <form id="task-form">
-            <label>任务名称<input name="title" required placeholder="例如：完成数据库实验报告" /></label>
-            <label>课程或项目<input name="course" placeholder="例如：软件工程" /></label>
-            <div class="form-row">
-              <label>截止日期<input type="date" name="due_date" required /></label>
-              <label>预计工时<input type="number" name="estimated_hours" min="0.5" step="0.5" required placeholder="小时" /></label>
-            </div>
-            <label>优先级<select name="priority"><option value="3">高</option><option value="2" selected>中</option><option value="1">低</option></select></label>
-            <button type="submit">加入风险雷达</button>
-            <p class="form-message" id="form-message"></p>
-          </form>
-        </article>
-
         <article class="panel risk-board">
           <div class="panel-heading">
             <div><p class="eyebrow">RISK BOARD</p><h2>任务风险</h2></div>
@@ -54,34 +38,109 @@
           </div>
           <div class="task-toolbar">
             <div class="filters" role="group" aria-label="筛选任务">
-              <button class="filter active" data-filter="all" type="button">全部</button>
-              <button class="filter" data-filter="active" type="button">进行中</button>
+              <button class="filter" data-filter="all" type="button">全部</button>
+              <button class="filter active" data-filter="active" type="button">待处理</button>
+              <button class="filter" data-filter="urgent" type="button">临期／逾期</button>
               <button class="filter" data-filter="high" type="button">高风险</button>
-              <button class="filter" data-filter="done" type="button">已完成</button>
+              <button class="filter" data-filter="done" type="button">已结束（含部分交付）</button>
             </div>
-            <input id="task-search" class="task-search" type="search" placeholder="搜索任务或课程" />
+            <input id="task-search" class="task-search" type="search" aria-label="搜索任务或课程，多个关键词用空格分隔" placeholder="如：数据库 报告" maxlength="200" />
           </div>
+          <p id="search-status" class="search-status" aria-live="polite"></p>
+          <p id="task-feedback" class="task-feedback" role="status"></p>
+          <p id="task-page-info" class="task-page-info" aria-live="polite"></p>
           <div id="task-list" class="task-list"></div>
+          <nav id="task-pagination" class="pagination" aria-label="任务列表分页"></nav>
           <div id="batch-summary" class="batch-summary"></div>
         </article>
       </section>
 
-      <section class="panel settings-panel">
-        <div class="panel-heading">
-          <div><p class="eyebrow">CAPACITY</p><h2>我的可用时间</h2></div>
-          <span class="muted">缓冲后的时间会同时用于风险判断和排程模拟</span>
+      <details class="panel expandable-panel action-panel">
+        <summary><div><p class="eyebrow">NEXT ACTIONS</p><h2>建议执行顺序</h2></div><span class="summary-hint">按截止日期与重要程度排序</span></summary>
+        <div class="expandable-body">
+
+        <div id="action-list" class="action-list"></div>
         </div>
+      </details>
+
+        <details id="task-intake" class="panel expandable-panel panel-form">
+          <summary>
+            <div><p class="eyebrow">TASK INTAKE</p><h2>添加任务</h2></div>
+            <span class="muted">先记录，再判断</span>
+          </summary>
+          <div class="expandable-body">
+          <form id="task-form">
+            <label>任务名称<input name="title" required placeholder="例如：完成数据库实验报告" /></label>
+            <label>课程或项目<input name="course" placeholder="例如：软件工程" /></label>
+            <div class="form-row">
+              <label>截止日期<input type="date" name="due_date" required /></label>
+              <label>预计工时<input type="number" name="estimated_hours" min="0.5" step="0.5" required placeholder="小时" /></label>
+            </div>
+            <label>重要程度（优先级）<select name="priority"><option value="3">高</option><option value="2" selected>中</option><option value="1">低</option></select></label>
+            <label class="check-label"><input type="checkbox" name="must_complete" /> 必须按原范围完整完成（不可在取舍中压缩）</label>
+            <label>最低交付比例（可选，%）<input type="number" name="minimum_delivery_percent" min="0" max="100" step="0.01" placeholder="如 70；留空表示核心范围尚未确认" /><small class="muted">指整个任务至少交付的比例，不是剩余工作的比例；勾选必须完整完成时按100%保护。</small></label>
+            <button type="submit">加入风险雷达</button>
+            <p class="form-message" id="form-message"></p>
+          </form>
+          </div>
+        </details>
+
+
+      <details class="panel expandable-panel tradeoff-panel" id="tradeoff-panel" hidden aria-live="polite">
+        <summary>
+          <div><p class="eyebrow">CAPACITY TRADEOFF</p><h2>时间不够时，比较三种选择</h2></div>
+          <span class="muted">仅提供情景建议，不会自动更改任务</span>
+        </summary>
+        <div id="tradeoff-content" class="expandable-body"></div>
+      </details>
+
+      <details id="report-panel" class="panel expandable-panel report-panel" aria-labelledby="report-heading">
+        <summary>
+          <div><p class="eyebrow">WORKLOAD BRIEF</p><h2 id="report-heading">一份看得懂的负荷简报</h2></div>
+          <span class="muted">只解释和建议，不修改任务</span>
+        </summary>
+        <div class="expandable-body">
+        <p class="report-intro">汇总还需多久、最早缺口、先做什么，以及三种取舍方案。可本地生成，也可请本机 Codex 整理简短建议。</p>
+        <div class="report-actions">
+          <button id="report-local" type="button" disabled>生成本地简报</button>
+          <button id="report-codex" type="button" disabled>请 Codex 生成建议</button>
+          <button id="report-copy" class="ghost" type="button" disabled>复制材料给当前 Codex</button>
+        </div>
+        <p id="report-capability" class="muted">正在检查本地报告入口…</p>
+        <p id="report-status" role="status" aria-live="polite"></p>
+        <div id="report-exports" class="report-actions" hidden>
+          <a id="report-download-txt">导出 TXT</a>
+          <a id="report-download-md">导出 Markdown</a>
+          <a id="report-download-json">导出数据与依据</a>
+          <a id="report-print" target="_blank" rel="noopener">打开打印版／另存 PDF</a>
+        </div>
+        <details id="report-preview" hidden open>
+          <summary>查看简报正文与来源</summary>
+          <pre id="report-body"></pre>
+        </details>
+        <label id="report-prompt-label" hidden>给当前 Codex 的材料（未自动发送）
+          <textarea id="report-prompt" rows="8" readonly aria-label="复制给当前Codex的提示词与快照"></textarea>
+        </label>
+        </div>
+      </details>
+
+      <details id="capacity-panel" class="panel expandable-panel settings-panel">
+        <summary><div><p class="eyebrow">CAPACITY</p><h2>我的可用时间</h2></div><span class="summary-hint">设置每日容量与缓冲比例</span></summary>
+        <div class="expandable-body">
+          <p class="section-intro">缓冲后的时间会同时用于风险判断和排程模拟。</p>
         <form id="settings-form" class="settings-form">
           <label>工作日每天可用<input type="number" name="weekday_hours" min="0" max="24" step="0.5" /></label>
           <label>周末每天可用<input type="number" name="weekend_hours" min="0" max="24" step="0.5" /></label>
           <label>缓冲比例<input type="number" name="buffer_ratio" min="0" max="0.8" step="0.05" /></label>
+          <label>每天最多额外投入（小时）<input type="number" name="max_extra_daily_hours" min="0" max="8" step="0.25" value="0" /><small class="muted">只用于方案比较；0 表示暂不增加投入</small></label>
           <label>跟踪窗口（天）<input type="number" name="tracking_window_days" min="7" max="365" step="1" /></label>
           <label class="check-label"><input type="checkbox" name="tracking_mode" /> 启用跟踪模式</label>
           <button type="submit">保存设置</button>
         </form>
-      </section>
+        </div>
+      </details>
 
-      <details class="panel expandable-panel ongoing-panel" open>
+      <details class="panel expandable-panel ongoing-panel">
         <summary>
           <div><p class="eyebrow">ONGOING TASK</p><h2>补录进行中任务</h2></div>
           <span class="summary-hint">展开 / 收起</span>
@@ -96,7 +155,9 @@
             <label>预计总工时<input type="number" name="estimated_hours" min="0.5" step="0.5" required /></label>
             <label>已投入工时<input type="number" name="spent_hours" min="0" step="0.1" value="0" required /></label>
             <label>当前进度（%）<input type="number" name="progress_percent" min="0" max="99" step="1" value="0" required /></label>
-            <label>优先级<select name="priority"><option value="3">高</option><option value="2" selected>中</option><option value="1">低</option></select></label>
+            <label>重要程度（优先级）<select name="priority"><option value="3">高</option><option value="2" selected>中</option><option value="1">低</option></select></label>
+            <label class="check-label"><input type="checkbox" name="must_complete" /> 必须按原范围完整完成</label>
+            <label>最低交付比例（可选，%）<input type="number" name="minimum_delivery_percent" min="0" max="100" step="0.01" placeholder="留空表示核心范围尚未确认" /></label>
             <label>数据精度<select name="data_precision"><option value="exact">精确记录</option><option value="approx">大致回忆</option><option value="rough">粗略估计</option></select></label>
             <label>压力感受<select name="stress_level"><option value="">未记录</option><option value="1">1 很轻松</option><option value="2">2</option><option value="3">3 一般</option><option value="4">4</option><option value="5">5 很紧张</option></select></label>
             <button type="submit">保存进行中任务</button>
@@ -137,17 +198,45 @@
         </div>
       </details>
 
-      <section class="panel insights-panel">
+      <details class="panel expandable-panel insights-panel">
+        <summary><div><p class="eyebrow">PERSONAL CALIBRATION</p><h2>我的近期表现</h2></div><span class="summary-hint">历史效率与缓冲建议</span></summary>
+        <div class="expandable-body">
         <div class="panel-heading">
-          <div><p class="eyebrow">PERSONAL CALIBRATION</p><h2>我的近期表现</h2></div>
           <button class="ghost" id="refresh-insights">刷新分析</button>
         </div>
         <div id="insight-metrics" class="insight-metrics"></div>
         <div id="insight-note" class="insight-note"></div>
-      </section>
+        </div>
+      </details>
 
-      <footer>当前版本使用可解释规则：进度与历史效率预测剩余时间，EDF 模拟排程，缓冲吸收不确定性。</footer>
+      <footer>结合实际进度与相似历史任务预测工时，按截止日期排程；时间不足时比较增加投入、保住关键任务和完成更多任务。</footer>
     </main>
+    <dialog id="progress-dialog" aria-labelledby="progress-dialog-heading">
+      <form id="progress-form">
+        <h2 id="progress-dialog-heading">更新任务进度</h2>
+        <p id="progress-task-name" class="dialog-task-name"></p>
+        <p class="muted">填写到目前为止的累计投入，不是仅填写这一次的用时。</p>
+        <div class="form-row">
+          <label for="progress-spent">累计投入（小时）<input id="progress-spent" type="number" min="0" step="any" required /></label>
+          <label for="progress-percent">当前完成比例（%）<input id="progress-percent" type="number" min="0" max="99.99" step="any" required /></label>
+        </div>
+        <p class="muted">保存后会更新剩余工时与风险。全部完成或部分交付后结束，请使用任务卡片中的对应操作。</p>
+        <p id="progress-message" class="inline-error" role="alert"></p>
+        <div class="report-actions"><button type="submit">保存并重新分析</button><button id="progress-cancel" type="button" class="ghost">取消</button></div>
+      </form>
+    </dialog>
+    <dialog id="delivery-dialog" aria-labelledby="delivery-dialog-heading">
+      <form id="delivery-form">
+        <h2 id="delivery-dialog-heading">设置交付约束</h2>
+        <p id="delivery-task-name"></p>
+        <label class="check-label"><input type="checkbox" name="must_complete" /> 必须按原范围完整完成</label>
+        <label>整个任务的最低交付比例（%）<input type="number" name="minimum_delivery_percent" min="0" max="100" step="0.01" placeholder="留空表示尚未确认" /></label>
+        <p class="muted">必须完整完成时不允许压缩或推迟其工时；底线超出容量会明确报冲突。比例按当前进度与剩余工时线性换算，并不代表交付内容可随意删减。保存只修改交付约束，不改变任务进度、截止日期或结束状态。</p>
+        <p id="delivery-message" role="status"></p>
+        <div class="report-actions"><button type="submit">保存约束</button><button id="delivery-cancel" type="button" class="ghost">取消</button></div>
+      </form>
+    </dialog>
+    <script src="/task-view.js"></script>
     <script src="/app.js"></script>
   </body>
 </html>
